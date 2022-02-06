@@ -55,6 +55,7 @@ public class PersistentObject : MonoBehaviour
 
     private void OnValidate()
     {
+        //Решает проблему идентификации здесь и сейчас. Для продакшена нужна более солная система
         if (id == null)
             id = Guid.NewGuid().ToString();
     }

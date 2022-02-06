@@ -21,15 +21,14 @@ public class PersistenceManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+            filePath = $"{Application.persistentDataPath}/{Instance.fileName}";
+            ReadPObjects();
         }
         else
         {
             Debug.LogError($"{nameof(PersistenceManager)}: exists in more than one instance");
             Destroy(this);
-        }
-
-        filePath = Application.persistentDataPath + Instance.fileName;
-        ReadPObjects();
+        }        
     }
 
     public static void RegisterPersistentObject(PersistentObject pObject)
@@ -64,21 +63,26 @@ public class PersistenceManager : MonoBehaviour
             wrapper.Data.Add(pObject.Data);
         }
 
-        if (!File.Exists(filePath))
-            File.Create(filePath);
-
         File.WriteAllText(filePath, JsonUtility.ToJson(wrapper));
     }
 
     private static void ReadPObjects()
     {
-        string filePath = Application.persistentDataPath + Instance.fileName;
-
         if (File.Exists(filePath))
         {
             string json = File.ReadAllText(filePath);
             var dataWrapper = JsonUtility.FromJson<PersistentObjectSerializationWrapper>(json);
             Instance.loadedPersistentObjects = dataWrapper.Data.ToDictionary(data => data.id, data => data);
+        }
+    }
+
+    [ContextMenu("ResetPositions")]
+    private void RestoreInitialPositions()
+    {
+        var filePath = $"{Application.persistentDataPath}/{fileName}";
+        if (File.Exists(filePath))
+        {
+            File.Delete(filePath);
         }
     }
     #endregion
