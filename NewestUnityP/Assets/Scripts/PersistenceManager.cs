@@ -10,11 +10,11 @@ public class PersistenceManager : MonoBehaviour
 
     public static PersistenceManager Instance;
     private static List<PersistentObject> pObjects => Instance.persistentObjects;
-    private static Dictionary<string, PersistentObjectData> loadedPObjects => Instance.loadedPersistentObjects;
+    private static Dictionary<string, PersistentObjectData> loadedPData => Instance.loadedPersistentData;
 
     private static string filePath;
     private List<PersistentObject> persistentObjects = new List<PersistentObject>();
-    private Dictionary<string, PersistentObjectData> loadedPersistentObjects = new Dictionary<string, PersistentObjectData>();    
+    private Dictionary<string, PersistentObjectData> loadedPersistentData = new Dictionary<string, PersistentObjectData>();    
 
     private void Awake()
     {
@@ -35,9 +35,9 @@ public class PersistenceManager : MonoBehaviour
     {
         Instance.persistentObjects.Add(pObject);
 
-        if (loadedPObjects != null && loadedPObjects.ContainsKey(pObject.ID))
+        if (loadedPData != null && loadedPData.ContainsKey(pObject.ID))
         {
-            pObject.RestoreState(loadedPObjects[pObject.ID]);
+            pObject.RestoreState(loadedPData[pObject.ID]);
         }
     }
 
@@ -72,7 +72,7 @@ public class PersistenceManager : MonoBehaviour
         {
             string json = File.ReadAllText(filePath);
             var dataWrapper = JsonUtility.FromJson<PersistentObjectSerializationWrapper>(json);
-            Instance.loadedPersistentObjects = dataWrapper.Data.ToDictionary(data => data.id, data => data);
+            Instance.loadedPersistentData = dataWrapper.Data.ToDictionary(data => data.id, data => data);
         }
     }
 
