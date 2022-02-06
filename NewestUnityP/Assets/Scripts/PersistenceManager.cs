@@ -11,6 +11,7 @@ public class PersistenceManager : MonoBehaviour
 
     public static PersistenceManager Instance;
 
+    private static string filePath;
     private List<PersistentObject> persistentObjects = new List<PersistentObject>();
     private Dictionary<string, PersistentObjectData> loadedPersistentObjects = new Dictionary<string, PersistentObjectData>();
 
@@ -29,6 +30,7 @@ public class PersistenceManager : MonoBehaviour
             Destroy(this);
         }
 
+        filePath = Application.persistentDataPath + Instance.fileName;
         ReadPObjects();
     }
 
@@ -64,31 +66,21 @@ public class PersistenceManager : MonoBehaviour
             wrapper.Data.Add(pObject.Data);
         }
 
-        var binaryFormatter = new BinaryFormatter();
-        var file = new FileInfo(Application.persistentDataPath + Instance.fileName);
+        if (!File.Exists(filePath))
+            File.Create(filePath);
 
-        if (file.Exists)
-            file.Delete();
-
-        using (var binaryFile = file.Create())
-        {
-            binaryFormatter.Serialize(binaryFile, JsonUtility.ToJson(wrapper));
-            binaryFile.Flush();
-        }
+        File.WriteAllText(filePath, JsonUtility.ToJson(wrapper));
     }
 
     private static void ReadPObjects()
     {
-        var binaryFormatter = new BinaryFormatter();
-        var file = new FileInfo(Application.persistentDataPath + Instance.fileName);
+        string filePath = Application.persistentDataPath + Instance.fileName;
 
-        if (file.Exists)
+        if (File.Exists(filePath))
         {
-            using (var binaryFile = file.OpenRead())
-            {
-                var data = JsonUtility.FromJson<PersistentObjectSerializarionWrapper>((string)binaryFormatter.Deserialize(binaryFile));
-                Instance.loadedPersistentObjects = data.Data.ToDictionary(x => x.id, x => x);
-            }
+            string json = File.ReadAllText(filePath);
+            var data = JsonUtility.FromJson<PersistentObjectSerializarionWrapper>(json);
+            Instance.loadedPersistentObjects = data.Data.ToDictionary(x => x.id, x => x);
         }
     }
     #endregion
