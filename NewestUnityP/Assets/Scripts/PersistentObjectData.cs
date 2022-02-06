@@ -14,7 +14,7 @@ public class PersistentObjectData
 }
 
 [Serializable] 
-public class PersistentObjectSerializarionWrapper
+public class PersistentObjectSerializationWrapper
 {
     [SerializeField]
     public List<PersistentObjectData> Data = new List<PersistentObjectData>();

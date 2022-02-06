@@ -2,21 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
 public class PersistenceManager : MonoBehaviour
 {
-    [SerializeField] private string fileName = "persistentObjects.bin";
+    [SerializeField] private string fileName = "persistentObjects.json";
 
     public static PersistenceManager Instance;
+    private static List<PersistentObject> pObjects => Instance.persistentObjects;
+    private static Dictionary<string, PersistentObjectData> loadedPObjects => Instance.loadedPersistentObjects;
 
     private static string filePath;
     private List<PersistentObject> persistentObjects = new List<PersistentObject>();
-    private Dictionary<string, PersistentObjectData> loadedPersistentObjects = new Dictionary<string, PersistentObjectData>();
-
-    private static List<PersistentObject> pObjects => Instance.persistentObjects;
-    private static Dictionary<string, PersistentObjectData> loadedPObjects => Instance.loadedPersistentObjects;
+    private Dictionary<string, PersistentObjectData> loadedPersistentObjects = new Dictionary<string, PersistentObjectData>();    
 
     private void Awake()
     {
@@ -58,7 +56,7 @@ public class PersistenceManager : MonoBehaviour
     #region IO Operations
     private static void SavePObjects()
     {
-        var wrapper = new PersistentObjectSerializarionWrapper();
+        var wrapper = new PersistentObjectSerializationWrapper();
 
         foreach(var pObject in pObjects)
         {
@@ -79,8 +77,8 @@ public class PersistenceManager : MonoBehaviour
         if (File.Exists(filePath))
         {
             string json = File.ReadAllText(filePath);
-            var data = JsonUtility.FromJson<PersistentObjectSerializarionWrapper>(json);
-            Instance.loadedPersistentObjects = data.Data.ToDictionary(x => x.id, x => x);
+            var dataWrapper = JsonUtility.FromJson<PersistentObjectSerializationWrapper>(json);
+            Instance.loadedPersistentObjects = dataWrapper.Data.ToDictionary(data => data.id, data => data);
         }
     }
     #endregion
